@@ -3,114 +3,127 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contagem de Produtos</title>
+  <title>Contagem de Produtos - Supermercado</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f4f4f4;
+      background: #fff8f0;
       padding: 20px;
-      max-width: 500px;
+      max-width: 600px;
       margin: auto;
+      color: #333;
     }
 
     h2 {
       text-align: center;
-      color: #333;
+      color: #d62828;
+      background-color: #ffdd57;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 24px;
+      margin-bottom: 20px;
     }
 
     label {
       display: block;
       margin-top: 15px;
       font-weight: bold;
+      color: #2a2a2a;
     }
 
-    input, textarea, button, select {
+    input, textarea, select {
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       margin-top: 5px;
-      border-radius: 8px;
+      border-radius: 6px;
       border: 1px solid #ccc;
-      box-sizing: border-box;
       font-size: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
 
-    button {
-      background-color: #28a745;
+    textarea {
+      resize: vertical;
+    }
+
+    .btn {
+      display: inline-block;
+      background-color: #d62828;
       color: white;
+      padding: 12px 16px;
       margin-top: 20px;
-      cursor: pointer;
       border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
     }
 
-    button:hover {
-      background-color: #218838;
+    .btn:hover {
+      background-color: #bb2222;
     }
 
     .mensagem {
-      background: white;
+      background: #f9f9f9;
       margin-top: 20px;
       padding: 15px;
       border-radius: 8px;
-      border: 1px solid #ccc;
+      border: 1px dashed #d62828;
       white-space: pre-wrap;
+      font-size: 15px;
     }
 
     .vencimento-grupo {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 10px;
-      background-color: #fff;
-      padding: 10px;
+      background: #fff;
+      padding: 12px;
+      margin-top: 15px;
+      border: 2px solid #ffe066;
       border-radius: 8px;
-      border: 1px solid #ccc;
     }
 
     .adicionar-btn {
-      position: relative;
       display: inline-flex;
       align-items: center;
       gap: 8px;
       padding: 10px 16px;
-      background-color: #28a745;
-      color: white;
+      background-color: #ffb703;
+      color: #333;
       border: none;
       border-radius: 999px;
-      font-size: 14px;
-      margin-top: 20px;
+      font-size: 15px;
       cursor: pointer;
+      margin-top: 10px;
     }
 
     .adicionar-btn::before {
       content: "+";
-      font-size: 18px;
+      font-size: 20px;
+      font-weight: bold;
     }
 
     .adicionar-btn:hover {
-      background-color: #218838;
+      background-color: #fcbf49;
     }
 
   </style>
 </head>
 <body>
-  <h2>Contagem de Produtos</h2>
+  <h2>📦 Contagem de Produtos</h2>
 
-  <label for="produto">Produto</label>
-  <input type="text" id="produto" placeholder="Ex: Iogurte Natural 170g">
+  <label for="produto">🧀 Produto</label>
+  <input type="text" id="produto" placeholder="Ex: Leite Integral 1L">
 
-  <label for="loja">Loja</label>
-  <input type="text" id="loja" placeholder="Ex: Loja São José">
+  <label for="loja">🏬 Loja</label>
+  <input type="text" id="loja" placeholder="Ex: Loja Centro - Natal">
 
   <div id="vencimentos"></div>
   <button class="adicionar-btn" onclick="adicionarVencimento()">Adicionar outra contagem</button>
 
-  <label for="obs">Observações (opcional)</label>
-  <textarea id="obs" rows="3" placeholder="Ex: Produto armazenado na geladeira da frente"></textarea>
+  <label for="obs">📝 Observações</label>
+  <textarea id="obs" rows="3" placeholder="Ex: Produto armazenado na geladeira 2"></textarea>
 
-  <button onclick="gerarMensagem()">Gerar mensagem</button>
+  <button class="btn" onclick="gerarMensagem()">Gerar mensagem</button>
 
   <div class="mensagem" id="mensagem"></div>
-  <button onclick="copiarMensagem()">Copiar para WhatsApp</button>
+  <button class="btn" onclick="copiarMensagem()">Copiar para WhatsApp</button>
 
   <script>
     function adicionarVencimento() {
@@ -119,7 +132,7 @@
       grupo.className = 'vencimento-grupo';
       grupo.innerHTML = `
         <input type="number" placeholder="Quantidade">
-        <input type="text" placeholder="Data de vencimento (AAAA-MM-DD)" onfocus="(this.type='date')" onblur="(this.type='text')">
+        <input type="text" placeholder="Data de vencimento (AAAA-MM-DD)" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
         <select>
           <option value="Área de vendas">Área de vendas</option>
           <option value="Estoque">Estoque</option>
@@ -135,13 +148,13 @@
       const grupos = document.querySelectorAll('.vencimento-grupo');
 
       if (!produto || !loja || grupos.length === 0) {
-        alert('Preencha produto, loja e ao menos uma data de vencimento com quantidade.');
+        alert('Preencha produto, loja e ao menos uma contagem.');
         return;
       }
 
       let mensagem = `📦 Produto: ${produto}\n\n`;
-      mensagem += `📍 Loja: ${loja}\n\n`;
-      mensagem += `📆 Contagem por vencimento:\n`;
+      mensagem += `🏬 Loja: ${loja}\n\n`;
+      mensagem += `📆 Contagens:\n`;
 
       grupos.forEach((grupo) => {
         const inputs = grupo.querySelectorAll('input, select');
@@ -162,7 +175,7 @@
       const texto = document.getElementById('mensagem').textContent;
       if (!texto) return alert('Gere uma mensagem primeiro.');
       navigator.clipboard.writeText(texto).then(() => {
-        alert('Mensagem copiada! Agora cole no WhatsApp.');
+        alert('✅ Mensagem copiada! Cole no WhatsApp.');
       });
     }
 
