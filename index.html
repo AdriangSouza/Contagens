@@ -40,7 +40,6 @@
       margin-top: 20px;
       cursor: pointer;
       border: none;
-      transition: background-color 0.3s;
     }
 
     button:hover {
@@ -67,24 +66,30 @@
       border: 1px solid #ccc;
     }
 
-    .add-button {
-      background-color: transparent;
-      color: #28a745;
-      font-size: 24px;
+    .adicionar-btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background-color: #28a745;
+      color: white;
       border: none;
+      border-radius: 999px;
+      font-size: 14px;
+      margin-top: 20px;
       cursor: pointer;
-      padding: 5px;
-      float: right;
     }
 
-    .add-button:hover {
-      color: #1e7e34;
+    .adicionar-btn::before {
+      content: "+";
+      font-size: 18px;
     }
 
-    .add-container {
-      display: flex;
-      justify-content: flex-end;
+    .adicionar-btn:hover {
+      background-color: #218838;
     }
+
   </style>
 </head>
 <body>
@@ -97,9 +102,7 @@
   <input type="text" id="loja" placeholder="Ex: Loja São José">
 
   <div id="vencimentos"></div>
-  <div class="add-container">
-    <button class="add-button" onclick="adicionarVencimento()">+</button>
-  </div>
+  <button class="adicionar-btn" onclick="adicionarVencimento()">Adicionar outra contagem</button>
 
   <label for="obs">Observações (opcional)</label>
   <textarea id="obs" rows="3" placeholder="Ex: Produto armazenado na geladeira da frente"></textarea>
@@ -109,69 +112,61 @@
   <div class="mensagem" id="mensagem"></div>
   <button onclick="copiarMensagem()">Copiar para WhatsApp</button>
 
-  <!-- ... o restante do HTML e estilo permanece igual até o <script> -->
-
-<script>
-  function adicionarVencimento() {
-    const container = document.getElementById('vencimentos');
-    const grupo = document.createElement('div');
-    grupo.className = 'vencimento-grupo';
-    grupo.innerHTML = `
-      <input type="number" placeholder="Quantidade">
-      <input type="text" placeholder="Data de vencimento">
-      <select>
-        <option value="Área de vendas">Área de vendas</option>
-        <option value="Estoque">Estoque</option>
-      </select>
-    `;
-    container.appendChild(grupo);
-  }
-
-  function gerarMensagem() {
-    const produto = document.getElementById('produto').value;
-    const loja = document.getElementById('loja').value;
-    const obs = document.getElementById('obs').value;
-    const grupos = document.querySelectorAll('.vencimento-grupo');
-
-    if (!produto || !loja || grupos.length === 0) {
-      alert('Preencha produto, loja e ao menos uma data de vencimento com quantidade.');
-      return;
+  <script>
+    function adicionarVencimento() {
+      const container = document.getElementById('vencimentos');
+      const grupo = document.createElement('div');
+      grupo.className = 'vencimento-grupo';
+      grupo.innerHTML = `
+        <input type="number" placeholder="Quantidade">
+        <input type="text" placeholder="Data de vencimento (AAAA-MM-DD)" onfocus="(this.type='date')" onblur="(this.type='text')">
+        <select>
+          <option value="Área de vendas">Área de vendas</option>
+          <option value="Estoque">Estoque</option>
+        </select>
+      `;
+      container.appendChild(grupo);
     }
 
-    let mensagem = `📦 Produto: ${produto}\n\n`;
-    mensagem += `📍 Loja: ${loja}\n\n`;
-    mensagem += `📆 Contagem por vencimento:\n`;
+    function gerarMensagem() {
+      const produto = document.getElementById('produto').value;
+      const loja = document.getElementById('loja').value;
+      const obs = document.getElementById('obs').value;
+      const grupos = document.querySelectorAll('.vencimento-grupo');
 
-    grupos.forEach((grupo) => {
-      const inputs = grupo.querySelectorAll('input, select');
-      const qtd = inputs[0].value;
-      const vencimento = inputs[1].value;
-      const local = inputs[2].value;
-      if (qtd && vencimento && local) {
-        mensagem += `• ${qtd} unidades (${local}) - ${vencimento}\n`;
+      if (!produto || !loja || grupos.length === 0) {
+        alert('Preencha produto, loja e ao menos uma data de vencimento com quantidade.');
+        return;
       }
-    });
 
-    if (obs) mensagem += `\n📝 Obs: ${obs}`;
+      let mensagem = `📦 Produto: ${produto}\n\n`;
+      mensagem += `📍 Loja: ${loja}\n\n`;
+      mensagem += `📆 Contagem por vencimento:\n`;
 
-    document.getElementById('mensagem').textContent = mensagem;
+      grupos.forEach((grupo) => {
+        const inputs = grupo.querySelectorAll('input, select');
+        const qtd = inputs[0].value;
+        const vencimento = inputs[1].value;
+        const local = inputs[2].value;
+        if (qtd && vencimento && local) {
+          mensagem += `• ${qtd} unidades (${local}) - ${vencimento}\n`;
+        }
+      });
 
-    // Abrir WhatsApp com a mensagem
-    const numero = "5584998005567";
-    const textoCodificado = encodeURIComponent(mensagem);
-    const url = `https://wa.me/${numero}?text=${textoCodificado}`;
-    window.open(url, '_blank');
-  }
+      if (obs) mensagem += `\n📝 Obs: ${obs}`;
 
-  function copiarMensagem() {
-    const texto = document.getElementById('mensagem').textContent;
-    if (!texto) return alert('Gere uma mensagem primeiro.');
-    navigator.clipboard.writeText(texto).then(() => {
-      alert('Mensagem copiada! Cole no WhatsApp.');
-    });
-  }
+      document.getElementById('mensagem').textContent = mensagem;
+    }
 
-  adicionarVencimento();
-</script>
+    function copiarMensagem() {
+      const texto = document.getElementById('mensagem').textContent;
+      if (!texto) return alert('Gere uma mensagem primeiro.');
+      navigator.clipboard.writeText(texto).then(() => {
+        alert('Mensagem copiada! Agora cole no WhatsApp.');
+      });
+    }
+
+    adicionarVencimento();
+  </script>
 </body>
 </html>
