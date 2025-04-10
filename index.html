@@ -109,62 +109,69 @@
   <div class="mensagem" id="mensagem"></div>
   <button onclick="copiarMensagem()">Copiar para WhatsApp</button>
 
-  <script>
-    function adicionarVencimento() {
-      const container = document.getElementById('vencimentos');
-      const grupo = document.createElement('div');
-      grupo.className = 'vencimento-grupo';
-      grupo.innerHTML = `
-        <input type="number" placeholder="Quantidade">
-        <input type="text" placeholder="Data de vencimento">
-        <select>
-          <option value="Área de vendas">Área de vendas</option>
-          <option value="Estoque">Estoque</option>
-        </select>
-      `;
-      container.appendChild(grupo);
+  <!-- ... o restante do HTML e estilo permanece igual até o <script> -->
+
+<script>
+  function adicionarVencimento() {
+    const container = document.getElementById('vencimentos');
+    const grupo = document.createElement('div');
+    grupo.className = 'vencimento-grupo';
+    grupo.innerHTML = `
+      <input type="number" placeholder="Quantidade">
+      <input type="text" placeholder="Data de vencimento">
+      <select>
+        <option value="Área de vendas">Área de vendas</option>
+        <option value="Estoque">Estoque</option>
+      </select>
+    `;
+    container.appendChild(grupo);
+  }
+
+  function gerarMensagem() {
+    const produto = document.getElementById('produto').value;
+    const loja = document.getElementById('loja').value;
+    const obs = document.getElementById('obs').value;
+    const grupos = document.querySelectorAll('.vencimento-grupo');
+
+    if (!produto || !loja || grupos.length === 0) {
+      alert('Preencha produto, loja e ao menos uma data de vencimento com quantidade.');
+      return;
     }
 
-    function gerarMensagem() {
-      const produto = document.getElementById('produto').value;
-      const loja = document.getElementById('loja').value;
-      const obs = document.getElementById('obs').value;
-      const grupos = document.querySelectorAll('.vencimento-grupo');
+    let mensagem = `📦 Produto: ${produto}\n\n`;
+    mensagem += `📍 Loja: ${loja}\n\n`;
+    mensagem += `📆 Contagem por vencimento:\n`;
 
-      if (!produto || !loja || grupos.length === 0) {
-        alert('Preencha produto, loja e ao menos uma data de vencimento com quantidade.');
-        return;
+    grupos.forEach((grupo) => {
+      const inputs = grupo.querySelectorAll('input, select');
+      const qtd = inputs[0].value;
+      const vencimento = inputs[1].value;
+      const local = inputs[2].value;
+      if (qtd && vencimento && local) {
+        mensagem += `• ${qtd} unidades (${local}) - ${vencimento}\n`;
       }
+    });
 
-      let mensagem = `📦 Produto: ${produto}\n\n`;
-      mensagem += `📍 Loja: ${loja}\n\n`;
-      mensagem += `📆 Contagem por vencimento:\n`;
+    if (obs) mensagem += `\n📝 Obs: ${obs}`;
 
-      grupos.forEach((grupo) => {
-        const inputs = grupo.querySelectorAll('input, select');
-        const qtd = inputs[0].value;
-        const vencimento = inputs[1].value;
-        const local = inputs[2].value;
-        if (qtd && vencimento && local) {
-          mensagem += `• ${qtd} unidades (${local}) - ${vencimento}\n`;
-        }
-      });
+    document.getElementById('mensagem').textContent = mensagem;
 
-      if (obs) mensagem += `\n📝 Obs: ${obs}`;
+    // Abrir WhatsApp com a mensagem
+    const numero = "5584998005567";
+    const textoCodificado = encodeURIComponent(mensagem);
+    const url = `https://wa.me/${numero}?text=${textoCodificado}`;
+    window.open(url, '_blank');
+  }
 
-      document.getElementById('mensagem').textContent = mensagem;
-    }
+  function copiarMensagem() {
+    const texto = document.getElementById('mensagem').textContent;
+    if (!texto) return alert('Gere uma mensagem primeiro.');
+    navigator.clipboard.writeText(texto).then(() => {
+      alert('Mensagem copiada! Cole no WhatsApp.');
+    });
+  }
 
-    function copiarMensagem() {
-      const texto = document.getElementById('mensagem').textContent;
-      if (!texto) return alert('Gere uma mensagem primeiro.');
-      navigator.clipboard.writeText(texto).then(() => {
-        alert('Mensagem copiada! Cole no WhatsApp.');
-      });
-    }
-
-    // Adiciona um grupo inicial automaticamente
-    adicionarVencimento();
-  </script>
+  adicionarVencimento();
+</script>
 </body>
 </html>
