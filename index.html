@@ -1,45 +1,143 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Formulário Básico</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contagem de Produtos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input, textarea, button, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+    button {
+      background-color: #28a745;
+      color: white;
+      margin-top: 20px;
+      cursor: pointer;
+      border: none;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+    .mensagem {
+      background: white;
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      white-space: pre-wrap;
+    }
+    .vencimento-grupo {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+      background-color: #fff;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    .vencimento-grupo select {
+      margin-top: 0;
+    }
+  </style>
 </head>
 <body>
-  <h2>Enviar dados para Google Sheets</h2>
+  <h2>Contagem de Produtos</h2>
 
-  <label>Nome do produto:</label>
-  <input type="text" id="nome"><br><br>
+  <label for="produto">Produto</label>
+  <input type="text" id="produto" placeholder="Ex: Iogurte Natural 170g">
 
-  <label>Loja:</label>
-  <input type="text" id="loja"><br><br>
+  <label for="loja">Loja</label>
+  <input type="text" id="loja" placeholder="Ex: Loja São José">
 
-  <button onclick="enviar()">Enviar</button>
+  <div id="vencimentos"></div>
+  <button onclick="adicionarVencimento()">Adicionar Data, Quantidade e Localização</button>
+
+  <label for="obs">Observações (opcional)</label>
+  <textarea id="obs" rows="3" placeholder="Ex: Produto armazenado na geladeira da frente"></textarea>
+
+  <button onclick="gerarMensagem()">Gerar mensagem</button>
+
+  <div class="mensagem" id="mensagem"></div>
+  <button onclick="copiarMensagem()">Copiar para WhatsApp</button>
 
   <script>
-    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbx77VugGR_SfkunkC3ko7J0QAOIrm1LE2PBRFFwctFfLRJ69j1HPgC67M2uLz1ll-1VJw/exec";
-
-    function enviar() {
-      const nome = document.getElementById('nome').value;
-      const loja = document.getElementById('loja').value;
-
-      fetch(WEBHOOK_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          produto: nome,
-          loja: loja,
-          registros: [
-            { qtd: 5, vencimento: "2025-05-01", local: "Estoque A" }
-          ],
-          obs: "Teste de envio"
-        })
-      })
-      .then(response => response.json())
-      .then(data => console.log("Resposta do servidor:", data))
-      .catch(error => console.error("Erro ao enviar:", error));
+    function adicionarVencimento() {
+      const container = document.getElementById('vencimentos');
+      const grupo = document.createElement('div');
+      grupo.className = 'vencimento-grupo';
+      grupo.innerHTML = `
+        <input type="number" placeholder="Quantidade">
+        <input type="date" placeholder="Data de vencimento">
+        <select>
+          <option value="Área de vendas">Área de vendas</option>
+          <option value="Estoque">Estoque</option>
+        </select>
+      `;
+      container.appendChild(grupo);
     }
+
+    function gerarMensagem() {
+      const produto = document.getElementById('produto').value;
+      const loja = document.getElementById('loja').value;
+      const obs = document.getElementById('obs').value;
+      const grupos = document.querySelectorAll('.vencimento-grupo');
+
+      if (!produto || !loja || grupos.length === 0) {
+        alert('Preencha produto, loja e ao menos uma data de vencimento com quantidade.');
+        return;
+      }
+
+      let mensagem = `📦 Produto: ${produto}\n\n`;
+      mensagem += `📍 Loja: ${loja}\n\n`;
+      mensagem += `📆 Contagem por vencimento:\n`;
+
+      grupos.forEach((grupo) => {
+        const inputs = grupo.querySelectorAll('input, select');
+        const qtd = inputs[0].value;
+        const vencimento = inputs[1].value;
+        const local = inputs[2].value;
+        if (qtd && vencimento && local) {
+          mensagem += `• ${qtd} unidades (${local}) - ${vencimento}\n`;
+        }
+      });
+
+      if (obs) mensagem += `\n📝 Obs: ${obs}`;
+
+      document.getElementById('mensagem').textContent = mensagem;
+    }
+
+    function copiarMensagem() {
+      const texto = document.getElementById('mensagem').textContent;
+      if (!texto) return alert('Gere uma mensagem primeiro.');
+      navigator.clipboard.writeText(texto).then(() => {
+        alert('Mensagem copiada! Cole no WhatsApp.');
+      });
+    }
+
+    adicionarVencimento();
   </script>
 </body>
 </html>
