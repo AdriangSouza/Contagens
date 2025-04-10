@@ -22,18 +22,23 @@
       const nome = document.getElementById('nome').value;
       const loja = document.getElementById('loja').value;
 
-      fetch(WEBHOOK_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nome, loja })
-      })
-      .then(response => response.text())
-      .then(data => {
-        alert("Dados enviados com sucesso!");
-      })
-      .catch(error => {
-        console.error("Erro:", error);
-        alert("Erro ao enviar.");
+      fetch("SUA_NOVA_URL_DO_APPS_SCRIPT", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    produto: "Exemplo",
+    loja: "Loja A",
+    registros: [
+      { qtd: 5, vencimento: "2025-05-01", local: "Estoque A" }
+    ],
+    obs: "Teste de envio"
+  })
+})
+.then(response => response.json())
+.then(data => console.log(data))
+.catch(error => console.error("Erro:", error));
       });
     }
   </script>
