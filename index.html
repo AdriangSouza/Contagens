@@ -1,132 +1,126 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Contagem de Produtos - Supermercado</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contagem de Produtos</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
     body {
       font-family: Arial, sans-serif;
-      background: #fff8f0;
+      background: #f0f8ff;
       padding: 20px;
-      max-width: 600px;
+      max-width: 500px;
       margin: auto;
       color: #333;
     }
 
     h2 {
       text-align: center;
-      color: #d62828;
-      background-color: #ffdd57;
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 22px;
-      margin-bottom: 20px;
+      color: #2e8b57;
     }
 
     label {
       display: block;
       margin-top: 15px;
       font-weight: bold;
-      color: #2a2a2a;
     }
 
     input, textarea, select {
       width: 100%;
       padding: 10px;
       margin-top: 5px;
-      border-radius: 6px;
+      border-radius: 8px;
       border: 1px solid #ccc;
-      font-size: 15px;
-    }
-
-    textarea {
-      resize: vertical;
-    }
-
-    .btn {
-      display: block;
-      width: 100%;
-      background-color: #d62828;
-      color: white;
-      padding: 12px;
-      margin-top: 20px;
-      border: none;
-      border-radius: 6px;
+      box-sizing: border-box;
       font-size: 16px;
-      cursor: pointer;
     }
 
-    .btn:hover {
-      background-color: #bb2222;
+    button {
+      padding: 12px 16px;
+      margin-top: 20px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      background-color: #2e8b57;
+      color: white;
+      transition: background-color 0.3s;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #247246;
     }
 
     .mensagem {
-      background: #f9f9f9;
+      background: white;
       margin-top: 20px;
       padding: 15px;
       border-radius: 8px;
-      border: 1px dashed #d62828;
+      border: 1px solid #ccc;
       white-space: pre-wrap;
-      font-size: 15px;
     }
 
     .vencimento-grupo {
-      background: #fff;
-      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
       margin-top: 15px;
-      border: 2px solid #ffe066;
+      background-color: #fff;
+      padding: 10px;
       border-radius: 8px;
+      border: 1px solid #ccc;
+      position: relative;
     }
 
-    .adicionar-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background-color: #ffb703;
-      color: #333;
+    .botao-circular {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      background-color: #2e8b57;
+      color: white;
       border: none;
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      font-size: 24px;
+      width: 55px;
+      height: 55px;
+      font-size: 30px;
+      line-height: 30px;
+      text-align: center;
       cursor: pointer;
-      margin: 10px 0;
+      box-shadow: 0px 3px 8px rgba(0,0,0,0.2);
     }
 
-    .adicionar-legenda {
-      font-size: 14px;
-      margin-bottom: 5px;
-      color: #555;
+    #preview {
+      display: none;
+      width: 100%;
+      margin-top: 10px;
+      border-radius: 8px;
     }
   </style>
 </head>
 <body>
-  <h2>📦 Contagem de Produtos</h2>
+  <h2>Contagem de Produtos</h2>
 
-  <label for="produto">🧀 Produto</label>
-  <input type="text" id="produto" placeholder="Ex: Leite Integral 1L" />
+  <label for="produto">Produto</label>
+  <input type="text" id="produto" placeholder="Ex: Iogurte Natural 170g">
 
-  <label for="loja">🏬 Loja</label>
-  <input type="text" id="loja" placeholder="Ex: Loja Centro - Natal" />
+  <label for="loja">Loja</label>
+  <input type="text" id="loja" placeholder="Ex: Loja São José">
 
   <div id="vencimentos"></div>
-  <div style="display: flex; align-items: center; gap: 10px;">
-    <button class="adicionar-btn" onclick="adicionarVencimento()">+</button>
-    <span class="adicionar-legenda">Adicionar outra contagem</span>
-  </div>
 
-  <label for="obs">📝 Observações</label>
-  <textarea id="obs" rows="3" placeholder="Ex: Produto armazenado na geladeira 2"></textarea>
+  <button class="botao-circular" onclick="adicionarVencimento()" title="Adicionar outra contagem">+</button>
 
-  <button class="btn" onclick="gerarMensagem()">Gerar mensagem</button>
+  <label for="obs">Observações (opcional)</label>
+  <textarea id="obs" rows="3" placeholder="Ex: Produto armazenado na geladeira da frente"></textarea>
+
+  <label for="foto">📷 Foto do Produto</label>
+  <input type="file" accept="image/*" capture="environment" id="foto" onchange="preverImagem()">
+  <img id="preview" src="">
+
+  <button onclick="gerarMensagem()">Gerar mensagem</button>
 
   <div class="mensagem" id="mensagem"></div>
-  <button class="btn" onclick="copiarMensagem()">Copiar mensagem</button>
 
   <script>
     function adicionarVencimento() {
@@ -135,8 +129,7 @@
       grupo.className = 'vencimento-grupo';
       grupo.innerHTML = `
         <input type="number" placeholder="Quantidade">
-        <input type="text" placeholder="Data de vencimento (AAAA-MM-DD)" 
-               onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
+        <input type="text" placeholder="Data de vencimento (dd-mm-aaaa)" oninput="formatarData(this)">
         <select>
           <option value="Área de vendas">Área de vendas</option>
           <option value="Estoque">Estoque</option>
@@ -145,20 +138,43 @@
       container.appendChild(grupo);
     }
 
+    function formatarData(input) {
+      let value = input.value.replace(/\D/g, '');
+      if (value.length > 2) value = value.slice(0, 2) + '-' + value.slice(2);
+      if (value.length > 5) value = value.slice(0, 5) + '-' + value.slice(5, 9);
+      input.value = value;
+    }
+
+    function preverImagem() {
+      const file = document.getElementById('foto').files[0];
+      const preview = document.getElementById('preview');
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      } else {
+        preview.style.display = 'none';
+      }
+    }
+
     function gerarMensagem() {
       const produto = document.getElementById('produto').value;
       const loja = document.getElementById('loja').value;
       const obs = document.getElementById('obs').value;
       const grupos = document.querySelectorAll('.vencimento-grupo');
+      const temFoto = document.getElementById('foto').files.length > 0;
 
       if (!produto || !loja || grupos.length === 0) {
-        alert('Preencha produto, loja e ao menos uma contagem.');
+        alert('Preencha produto, loja e ao menos uma data de vencimento com quantidade.');
         return;
       }
 
       let mensagem = `📦 Produto: ${produto}\n\n`;
-      mensagem += `🏬 Loja: ${loja}\n\n`;
-      mensagem += `📆 Contagens:\n`;
+      mensagem += `📍 Loja: ${loja}\n\n`;
+      mensagem += `📆 Contagem por vencimento:\n`;
 
       grupos.forEach((grupo) => {
         const inputs = grupo.querySelectorAll('input, select');
@@ -171,18 +187,12 @@
       });
 
       if (obs) mensagem += `\n📝 Obs: ${obs}`;
+      if (temFoto) mensagem += `\n📷 Foto anexada`;
 
       document.getElementById('mensagem').textContent = mensagem;
     }
 
-    function copiarMensagem() {
-      const texto = document.getElementById('mensagem').textContent;
-      if (!texto) return alert('Gere uma mensagem primeiro.');
-      navigator.clipboard.writeText(texto).then(() => {
-        alert('✅ Mensagem copiada! Cole onde quiser.');
-      });
-    }
-
+    // Inicializa com um grupo
     adicionarVencimento();
   </script>
 </body>
