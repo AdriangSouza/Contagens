@@ -141,6 +141,22 @@
   <button class="btn-primary btn-copy" onclick="copiarMensagem()">📋 Copiar Mensagem</button>
 
   <script>
+    function aplicarMascaraData(input) {
+      input.addEventListener("input", () => {
+        let valor = input.value.replace(/\D/g, "");
+
+        if (valor.length > 8) valor = valor.slice(0, 8);
+
+        if (valor.length > 4) {
+          input.value = valor.replace(/(\d{2})(\d{2})(\d{1,4})/, "$1/$2/$3");
+        } else if (valor.length > 2) {
+          input.value = valor.replace(/(\d{2})(\d{1,2})/, "$1/$2");
+        } else {
+          input.value = valor;
+        }
+      });
+    }
+
     function adicionarVencimento() {
       const container = document.getElementById('vencimentos');
       const grupo = document.createElement('div');
@@ -149,8 +165,8 @@
         <label>Quantidade</label>
         <input type="number" placeholder="Ex: 10" />
 
-        <label>Data de vencimento (dd-mm-aaaa)</label>
-        <input type="text" placeholder="dd-mm-aaaa" pattern="\\d{2}-\\d{2}-\\d{4}" />
+        <label>Data de vencimento (dd/mm/aaaa)</label>
+        <input type="text" class="data" placeholder="dd/mm/aaaa" />
 
         <label>Localização</label>
         <select>
@@ -159,6 +175,9 @@
         </select>
       `;
       container.appendChild(grupo);
+
+      const campoData = grupo.querySelector('.data');
+      aplicarMascaraData(campoData);
     }
 
     function gerarMensagem() {
@@ -199,7 +218,7 @@
       });
     }
 
-    adicionarVencimento(); // inicial
+    adicionarVencimento(); // Adiciona primeiro grupo ao carregar
   </script>
 </body>
 </html>
