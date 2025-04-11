@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Contagem de Produtos - Supermercado</title>
+  <title>Contagem de Produtos</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #fff9f0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f8f9fa;
       padding: 20px;
       max-width: 600px;
       margin: auto;
@@ -16,102 +16,94 @@
 
     h2 {
       text-align: center;
-      color: #d62828;
+      color: #2c3e50;
+      margin-bottom: 25px;
     }
 
     label {
       display: block;
       margin-top: 15px;
       font-weight: bold;
+      color: #2c3e50;
     }
 
     input, textarea, button, select {
       width: 100%;
       padding: 10px;
       margin-top: 5px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
+      border-radius: 6px;
+      border: 1px solid #ced4da;
       box-sizing: border-box;
-      font-size: 16px;
+      font-size: 15px;
     }
 
     button {
-      background-color: #d62828;
+      background-color: #007bff;
       color: white;
       margin-top: 20px;
       cursor: pointer;
       border: none;
+      transition: background-color 0.3s;
     }
 
     button:hover {
-      background-color: #b91d1d;
+      background-color: #0056b3;
     }
 
     .mensagem {
       background: #fff;
       margin-top: 20px;
       padding: 15px;
-      border-radius: 8px;
+      border-radius: 6px;
       border: 1px solid #ccc;
       white-space: pre-wrap;
     }
 
     .vencimento-grupo {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 10px;
-      background-color: #fefefe;
+      background-color: #ffffff;
       padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      position: relative;
-    }
-
-    .add-button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 180px;
-      margin: 20px auto 10px;
-      font-weight: bold;
-    }
-
-    .data-input::-webkit-calendar-picker-indicator {
-      filter: invert(0.7);
-    }
-
-    .icon-plus {
-      position: absolute;
-      top: -10px;
-      right: -10px;
-      background-color: #28a745;
-      color: white;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 18px;
-      cursor: pointer;
+      border-radius: 6px;
+      border: 1px solid #dee2e6;
+      margin-top: 15px;
     }
 
     .campo-label {
       font-size: 14px;
       margin-bottom: 3px;
+      font-weight: 600;
+    }
+
+    .add-button {
+      background-color: #28a745;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 6px;
+      border: none;
+      font-size: 16px;
+      margin-top: 20px;
+      display: block;
+      width: fit-content;
+    }
+
+    .add-button:hover {
+      background-color: #218838;
+    }
+
+    @media (max-width: 600px) {
+      input, textarea, button, select {
+        font-size: 14px;
+      }
     }
   </style>
 </head>
 <body>
-  <h2>Contagem de Produtos - Supermercado</h2>
+  <h2>Contagem de Produtos</h2>
 
   <label for="produto">🧃 Produto</label>
-  <input type="text" id="produto" placeholder="Ex: Iogurte Natural 170g">
+  <input type="text" id="produto" placeholder="Ex: Iogurte Natural 170g" />
 
   <label for="loja">🏬 Loja</label>
-  <input type="text" id="loja" placeholder="Ex: Loja São José">
+  <input type="text" id="loja" placeholder="Ex: Loja São José" />
 
   <div id="vencimentos"></div>
   <button class="add-button" onclick="adicionarVencimento()">+ Adicionar outra contagem</button>
@@ -135,21 +127,17 @@
       const grupo = document.createElement('div');
       grupo.className = 'vencimento-grupo';
       grupo.innerHTML = `
-        <div>
-          <label class="campo-label">Quantidade</label>
-          <input type="number" placeholder="Ex: 10">
-        </div>
-        <div>
-          <label class="campo-label">Data de vencimento</label>
-          <input type="date" class="data-input">
-        </div>
-        <div>
-          <label class="campo-label">Localização</label>
-          <select>
-            <option value="Área de vendas">Área de vendas</option>
-            <option value="Estoque">Estoque</option>
-          </select>
-        </div>
+        <label class="campo-label">Quantidade</label>
+        <input type="number" placeholder="Ex: 10" />
+
+        <label class="campo-label">Data de vencimento</label>
+        <input type="date" />
+
+        <label class="campo-label">Localização</label>
+        <select>
+          <option value="Área de vendas">Área de vendas</option>
+          <option value="Estoque">Estoque</option>
+        </select>
       `;
       container.appendChild(grupo);
     }
@@ -161,7 +149,7 @@
       const grupos = document.querySelectorAll('.vencimento-grupo');
 
       if (!produto || !loja || grupos.length === 0) {
-        alert('Preencha produto, loja e ao menos uma data de vencimento com quantidade.');
+        alert('Preencha produto, loja e ao menos uma contagem.');
         return;
       }
 
@@ -188,7 +176,7 @@
       const texto = document.getElementById('mensagem').textContent;
       if (!texto) return alert('Gere uma mensagem primeiro.');
       navigator.clipboard.writeText(texto).then(() => {
-        alert('Mensagem copiada! Cole no seu destino preferido.');
+        alert('Mensagem copiada com sucesso!');
       });
     }
 
