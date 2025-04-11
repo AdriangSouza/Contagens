@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contagem de Produtos</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contagem de Produtos - Supermercado</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f0f8ff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #fff9f0;
       padding: 20px;
-      max-width: 500px;
+      max-width: 600px;
       margin: auto;
       color: #333;
     }
 
     h2 {
       text-align: center;
-      color: #2e8b57;
+      color: #d62828;
     }
 
     label {
@@ -25,7 +25,7 @@
       font-weight: bold;
     }
 
-    input, textarea, select {
+    input, textarea, button, select {
       width: 100%;
       padding: 10px;
       margin-top: 5px;
@@ -36,24 +36,19 @@
     }
 
     button {
-      padding: 12px 16px;
-      margin-top: 20px;
-      font-size: 16px;
-      border-radius: 10px;
-      border: none;
-      cursor: pointer;
-      background-color: #2e8b57;
+      background-color: #d62828;
       color: white;
-      transition: background-color 0.3s;
-      width: 100%;
+      margin-top: 20px;
+      cursor: pointer;
+      border: none;
     }
 
     button:hover {
-      background-color: #247246;
+      background-color: #b91d1d;
     }
 
     .mensagem {
-      background: white;
+      background: #fff;
       margin-top: 20px;
       padding: 15px;
       border-radius: 8px;
@@ -65,106 +60,98 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
-      margin-top: 15px;
-      background-color: #fff;
+      margin-top: 10px;
+      background-color: #fefefe;
       padding: 10px;
       border-radius: 8px;
       border: 1px solid #ccc;
       position: relative;
     }
 
-    .botao-circular {
-      position: fixed;
-      right: 20px;
-      bottom: 20px;
-      background-color: #2e8b57;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 55px;
-      height: 55px;
-      font-size: 30px;
-      line-height: 30px;
-      text-align: center;
-      cursor: pointer;
-      box-shadow: 0px 3px 8px rgba(0,0,0,0.2);
+    .add-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 180px;
+      margin: 20px auto 10px;
+      font-weight: bold;
     }
 
-    #preview {
-      display: none;
-      width: 100%;
-      margin-top: 10px;
-      border-radius: 8px;
+    .data-input::-webkit-calendar-picker-indicator {
+      filter: invert(0.7);
+    }
+
+    .icon-plus {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      background-color: #28a745;
+      color: white;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .campo-label {
+      font-size: 14px;
+      margin-bottom: 3px;
     }
   </style>
 </head>
 <body>
-  <h2>Contagem de Produtos</h2>
+  <h2>Contagem de Produtos - Supermercado</h2>
 
-  <label for="produto">Produto</label>
+  <label for="produto">🧃 Produto</label>
   <input type="text" id="produto" placeholder="Ex: Iogurte Natural 170g">
 
-  <label for="loja">Loja</label>
+  <label for="loja">🏬 Loja</label>
   <input type="text" id="loja" placeholder="Ex: Loja São José">
 
   <div id="vencimentos"></div>
+  <button class="add-button" onclick="adicionarVencimento()">+ Adicionar outra contagem</button>
 
-  <button class="botao-circular" onclick="adicionarVencimento()" title="Adicionar outra contagem">+</button>
-
-  <label for="obs">Observações (opcional)</label>
+  <label for="obs">📝 Observações (opcional)</label>
   <textarea id="obs" rows="3" placeholder="Ex: Produto armazenado na geladeira da frente"></textarea>
 
-  <label for="foto">📷 Foto do Produto</label>
-  <input type="file" accept="image/*" capture="environment" id="foto" onchange="preverImagem()">
-  <img id="preview" src="">
-
-  <button onclick="gerarMensagem()">Gerar mensagem</button>
+  <button onclick="gerarMensagem()">📄 Gerar mensagem</button>
 
   <div class="mensagem" id="mensagem"></div>
-
-  <button onclick="copiarMensagem()">Copiar mensagem</button>
+  <button onclick="copiarMensagem()">📋 Copiar mensagem</button>
 
   <script>
-    let imagemBase64 = "";
+    function formatarData(dateString) {
+      const [yyyy, mm, dd] = dateString.split("-");
+      return `${dd}-${mm}-${yyyy}`;
+    }
 
     function adicionarVencimento() {
       const container = document.getElementById('vencimentos');
       const grupo = document.createElement('div');
       grupo.className = 'vencimento-grupo';
       grupo.innerHTML = `
-        <input type="number" placeholder="Quantidade">
-        <input type="text" placeholder="Data de vencimento (dd-mm-aaaa)" oninput="formatarData(this)">
-        <select>
-          <option value="Área de vendas">Área de vendas</option>
-          <option value="Estoque">Estoque</option>
-        </select>
+        <div>
+          <label class="campo-label">Quantidade</label>
+          <input type="number" placeholder="Ex: 10">
+        </div>
+        <div>
+          <label class="campo-label">Data de vencimento</label>
+          <input type="date" class="data-input">
+        </div>
+        <div>
+          <label class="campo-label">Localização</label>
+          <select>
+            <option value="Área de vendas">Área de vendas</option>
+            <option value="Estoque">Estoque</option>
+          </select>
+        </div>
       `;
       container.appendChild(grupo);
-    }
-
-    function formatarData(input) {
-      let value = input.value.replace(/\D/g, '');
-      if (value.length > 2) value = value.slice(0, 2) + '-' + value.slice(2);
-      if (value.length > 5) value = value.slice(0, 5) + '-' + value.slice(5, 9);
-      input.value = value;
-    }
-
-    function preverImagem() {
-      const file = document.getElementById('foto').files[0];
-      const preview = document.getElementById('preview');
-
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          imagemBase64 = e.target.result;
-          preview.src = imagemBase64;
-          preview.style.display = 'block';
-        };
-        reader.readAsDataURL(file);
-      } else {
-        preview.style.display = 'none';
-        imagemBase64 = "";
-      }
     }
 
     function gerarMensagem() {
@@ -179,7 +166,7 @@
       }
 
       let mensagem = `📦 Produto: ${produto}\n\n`;
-      mensagem += `📍 Loja: ${loja}\n\n`;
+      mensagem += `🏬 Loja: ${loja}\n\n`;
       mensagem += `📆 Contagem por vencimento:\n`;
 
       grupos.forEach((grupo) => {
@@ -188,28 +175,23 @@
         const vencimento = inputs[1].value;
         const local = inputs[2].value;
         if (qtd && vencimento && local) {
-          mensagem += `• ${qtd} unidades (${local}) - ${vencimento}\n`;
+          mensagem += `• ${qtd} unidades (${local}) - ${formatarData(vencimento)}\n`;
         }
       });
 
       if (obs) mensagem += `\n📝 Obs: ${obs}`;
-      if (imagemBase64) mensagem += `\n📷 Foto em anexo (base64):\n${imagemBase64}`;
 
       document.getElementById('mensagem').textContent = mensagem;
     }
 
     function copiarMensagem() {
       const texto = document.getElementById('mensagem').textContent;
-      if (!texto) {
-        alert('Gere uma mensagem primeiro.');
-        return;
-      }
+      if (!texto) return alert('Gere uma mensagem primeiro.');
       navigator.clipboard.writeText(texto).then(() => {
-        alert('Mensagem copiada! Agora é só colar onde quiser.');
+        alert('Mensagem copiada! Cole no seu destino preferido.');
       });
     }
 
-    // Adiciona um grupo inicial
     adicionarVencimento();
   </script>
 </body>
