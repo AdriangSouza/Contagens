@@ -2,141 +2,148 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Contagem de Produtos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Scan Barcode -->
+  <script src="https://unpkg.com/@ericblade/quagga2@1.2.6/dist/quagga.min.js"></script>
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      padding: 20px;
-      max-width: 600px;
-      margin: auto;
-      transition: background 0.3s, color 0.3s;
-    }
     :root {
-      --bg: #f9f9f9;
-      --text: #222;
-      --box: #fff;
-      --border: #ccc;
+      --cor-fundo: #f8f9fa;
+      --cor-primaria: #007bff;
+      --cor-texto: #333;
     }
-    [data-theme="dark"] {
-      --bg: #1e1e1e;
-      --text: #f1f1f1;
-      --box: #2e2e2e;
-      --border: #444;
+
+    body {
+      font-family: Arial, sans-serif;
+      background: var(--cor-fundo);
+      color: var(--cor-texto);
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
     }
+
     h2 {
       text-align: center;
-      margin-bottom: 20px;
+      color: var(--cor-primaria);
     }
+
     label {
-      display: block;
-      margin-top: 15px;
       font-weight: bold;
+      margin-top: 15px;
+      display: block;
     }
-    input, textarea, button, select {
+
+    input, textarea, select, button {
       width: 100%;
       padding: 10px;
+      font-size: 16px;
       margin-top: 5px;
       border-radius: 8px;
-      border: 1px solid var(--border);
+      border: 1px solid #ccc;
       box-sizing: border-box;
-      font-size: 16px;
-      background-color: var(--box);
-      color: var(--text);
     }
-    .vencimento-grupo {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 10px;
-      background-color: var(--box);
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-    }
-    .btn {
-      background-color: #28a745;
+
+    button {
+      background-color: var(--cor-primaria);
       color: white;
-      margin-top: 20px;
-      cursor: pointer;
       border: none;
-      transition: 0.3s;
-    }
-    .btn:hover {
-      background-color: #218838;
-    }
-    .mensagem {
-      background: var(--box);
+      cursor: pointer;
       margin-top: 20px;
-      padding: 15px;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .vencimento-grupo {
+      margin-top: 15px;
+      padding: 10px;
+      background: #fff;
+      border: 1px solid #ccc;
       border-radius: 8px;
-      border: 1px solid var(--border);
+    }
+
+    .mensagem {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 20px;
       white-space: pre-wrap;
     }
-    .add-button {
-      background-color: #007bff;
-      color: white;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      font-size: 24px;
-      border: none;
-      cursor: pointer;
-      display: flex;
+
+    #scanner-popup {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8);
+      display: none;
       align-items: center;
       justify-content: center;
-      margin: 20px auto;
+      z-index: 1000;
     }
-    .add-button:hover {
-      background-color: #0056b3;
+
+    #scanner-container {
+      width: 100%;
+      max-width: 400px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
     }
-    .theme-toggle {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      cursor: pointer;
+
+    #video {
+      width: 100%;
+      height: auto;
+    }
+
+    .scan-btn {
+      width: auto;
+      padding: 10px 20px;
+      margin-left: 10px;
     }
   </style>
 </head>
 <body>
-  <div class="theme-toggle" onclick="alternarTema()">🌓</div>
   <h2>Contagem de Produtos</h2>
 
-  <label for="produto">Produto</label>
-  <input type="text" id="produto" placeholder="Ex: Iogurte Natural 170g">
-  <button onclick="iniciarScanner()">📷 Escanear Código de Barras</button>
+  <label>Produto</label>
+  <div style="display: flex; align-items: center;">
+    <input type="text" id="produto" placeholder="Nome do produto">
+    <button class="scan-btn" onclick="abrirScanner()">📷</button>
+  </div>
 
-  <label for="loja">Loja</label>
-  <input type="text" id="loja" placeholder="Ex: Loja Central">
+  <label>Loja</label>
+  <input type="text" id="loja" placeholder="Ex: Loja São José">
 
   <div id="vencimentos"></div>
-  <button class="add-button" onclick="adicionarVencimento()">+</button>
+  <button onclick="adicionarVencimento()">+ Adicionar outra contagem</button>
 
-  <label for="obs" style="margin-top: 20px;">Observações (opcional)</label>
-  <textarea id="obs" rows="3" placeholder="Ex: Produto armazenado na geladeira da frente"></textarea>
+  <div style="margin-top: 20px;">
+    <label>Observações</label>
+    <textarea id="obs" rows="3" placeholder="Ex: Produto na geladeira da frente"></textarea>
+  </div>
 
-  <button class="btn" onclick="gerarMensagem()">Gerar mensagem</button>
-  <button class="btn" onclick="copiarMensagem()">Copiar mensagem</button>
+  <button onclick="gerarMensagem()">Gerar mensagem</button>
 
   <div class="mensagem" id="mensagem"></div>
+  <button onclick="copiarMensagem()">Copiar mensagem</button>
 
-  <div id="scanner" style="display:none;"></div>
+  <!-- Scanner Popup -->
+  <div id="scanner-popup">
+    <div id="scanner-container">
+      <h3>Escaneie o código de barras</h3>
+      <div id="video"></div>
+      <button onclick="fecharScanner()">Fechar</button>
+    </div>
+  </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
   <script>
-    function alternarTema() {
-      const atual = document.documentElement.getAttribute('data-theme');
-      document.documentElement.setAttribute('data-theme', atual === 'dark' ? 'light' : 'dark');
-    }
-
     function adicionarVencimento() {
       const container = document.getElementById('vencimentos');
       const grupo = document.createElement('div');
       grupo.className = 'vencimento-grupo';
       grupo.innerHTML = `
-        <input type="number" placeholder="Quantidade">
+        <input type="text" placeholder="Quantidade" inputmode="numeric">
         <input type="text" placeholder="Data de vencimento (dd/mm/aaaa)" oninput="formatarData(this)">
         <select>
           <option value="Área de vendas">Área de vendas</option>
@@ -147,9 +154,9 @@
     }
 
     function formatarData(input) {
-      let valor = input.value.replace(/\D/g, '').slice(0, 8);
-      if (valor.length >= 5) input.value = valor.replace(/(\d{2})(\d{2})(\d{0,4})/, '$1/$2/$3');
-      else if (valor.length >= 3) input.value = valor.replace(/(\d{2})(\d{0,2})/, '$1/$2');
+      let valor = input.value.replace(/\D/g, "").slice(0,8);
+      if (valor.length >= 5) input.value = valor.replace(/(\d{2})(\d{2})(\d{0,4})/, "$1/$2/$3");
+      else if (valor.length >= 3) input.value = valor.replace(/(\d{2})(\d{0,2})/, "$1/$2");
       else input.value = valor;
     }
 
@@ -160,21 +167,16 @@
       const grupos = document.querySelectorAll('.vencimento-grupo');
 
       if (!produto || !loja || grupos.length === 0) {
-        alert('Preencha produto, loja e ao menos uma data de vencimento com quantidade.');
+        alert("Preencha todos os campos obrigatórios.");
         return;
       }
 
-      let mensagem = `📦 Produto: ${produto}\n\n`;
-      mensagem += `🏬 Loja: ${loja}\n\n`;
-      mensagem += `📅 Contagem por vencimento:\n`;
+      let mensagem = `📦 Produto: ${produto}\n📍 Loja: ${loja}\n\n📆 Contagem:\n`;
 
-      grupos.forEach((grupo) => {
-        const inputs = grupo.querySelectorAll('input, select');
-        const qtd = inputs[0].value;
-        const vencimento = inputs[1].value;
-        const local = inputs[2].value;
-        if (qtd && vencimento && local) {
-          mensagem += `• ${qtd} unidades (${local}) - ${vencimento}\n`;
+      grupos.forEach(grupo => {
+        const [qtd, vencimento, local] = grupo.querySelectorAll('input, select');
+        if (qtd.value && vencimento.value && local.value) {
+          mensagem += `• ${qtd.value} unidades (${local.value}) - ${vencimento.value}\n`;
         }
       });
 
@@ -190,28 +192,43 @@
       });
     }
 
-    function iniciarScanner() {
-      const scanner = document.getElementById('scanner');
-      scanner.style.display = 'block';
+    // Scanner
+    function abrirScanner() {
+      document.getElementById('scanner-popup').style.display = 'flex';
       Quagga.init({
-        inputStream: {
-          name: "Live",
-          type: "LiveStream",
-          target: scanner
-        },
-        decoder: {
-          readers: ["ean_reader"]
-        }
-      }, function(err) {
+        inputStream: { type: "LiveStream", target: document.getElementById('video'), constraints: { facingMode: "environment" } },
+        decoder: { readers: ["ean_reader"] }
+      }, err => {
         if (err) return console.error(err);
         Quagga.start();
       });
 
-      Quagga.onDetected(function(result) {
-        document.getElementById('produto').value = result.codeResult.code;
-        Quagga.stop();
-        scanner.style.display = 'none';
+      Quagga.onDetected(data => {
+        const code = data.codeResult.code;
+        buscarProdutoPorCodigo(code);
+        fecharScanner();
       });
+    }
+
+    function fecharScanner() {
+      Quagga.stop();
+      document.getElementById('scanner-popup').style.display = 'none';
+    }
+
+    async function buscarProdutoPorCodigo(codigo) {
+      const url = `https://world.openfoodfacts.org/api/v0/product/${codigo}.json`;
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.status === 1) {
+          const nome = data.product.product_name || "Produto não identificado";
+          document.getElementById('produto').value = nome;
+        } else {
+          alert("Produto não encontrado.");
+        }
+      } catch (err) {
+        console.error("Erro ao buscar produto:", err);
+      }
     }
 
     adicionarVencimento();
