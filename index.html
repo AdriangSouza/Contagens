@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Contagem de Produtos</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -74,13 +75,19 @@
     .add-btn button:hover {
       background-color: #2471a3;
     }
+    #qr-reader {
+      margin-top: 10px;
+      width: 100%;
+    }
   </style>
 </head>
 <body>
   <h2>Contagem de Produtos</h2>
 
   <label for="produto">Produto</label>
-  <input type="text" id="produto" placeholder="Ex: Iogurte Natural 170g" />
+  <input type="text" id="produto" placeholder="Escaneie ou digite o nome do produto" />
+  <button onclick="abrirScanner()">📷 Escanear código de barras</button>
+  <div id="qr-reader" style="display:none;"></div>
 
   <label for="loja">Loja</label>
   <input type="text" id="loja" placeholder="Ex: Loja São José" />
@@ -91,7 +98,7 @@
     <button onclick="adicionarVencimento()">Adicionar outra contagem</button>
   </div>
 
-  <label for="obs">Observações (opcional)</label>
+  <label for="obs" style="margin-top: 30px;">Observações (opcional)</label>
   <textarea id="obs" rows="3" placeholder="Ex: Produto armazenado na geladeira da frente"></textarea>
 
   <button onclick="gerarMensagem()">Gerar mensagem</button>
@@ -168,7 +175,39 @@
         input.value = value;
     }
 
-    // Adiciona um campo por padrão
+    function abrirScanner() {
+      const qrDiv = document.getElementById("qr-reader");
+      qrDiv.style.display = "block";
+
+      const html5QrCode = new Html5Qrcode("qr-reader");
+      html5QrCode.start(
+        { facingMode: { exact: "environment" } },
+        {
+          fps: 10,
+          qrbox: 250,
+        },
+        async (decodedText) => {
+          html5QrCode.stop();
+          qrDiv.style.display = "none";
+
+          // Usa API para buscar nome
+          const produtoInput = document.getElementById("produto");
+          try {
+            const res = await fetch(`https://api.barcodelookup.com/v3/products?barcode=${decodedText}&formatted=y&key=8qlzz9o86d4g9p6hxszq3f`);
+            const data = await res.json();
+            const nome = data.products?.[0]?.product_name;
+            produtoInput.value = nome || decodedText;
+          } catch (e) {
+            produtoInput.value = decodedText;
+            alert("Não foi possível identificar o nome do produto.");
+          }
+        },
+        (err) => {
+          console.warn(err);
+        }
+      );
+    }
+
     adicionarVencimento();
   </script>
 </body>
