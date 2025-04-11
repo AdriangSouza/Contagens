@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Contagem de Produtos</title>
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -48,13 +49,6 @@
     .add-btn {
       background-color: #3498db;
       color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .add-btn:hover {
-      background-color: #2980b9;
     }
 
     .submit-btn {
@@ -62,17 +56,9 @@
       color: white;
     }
 
-    .submit-btn:hover {
-      background-color: #27ae60;
-    }
-
     .copy-btn {
       background-color: #f39c12;
       color: white;
-    }
-
-    .copy-btn:hover {
-      background-color: #e67e22;
     }
 
     .mensagem {
@@ -92,8 +78,9 @@
       background: #fff;
     }
 
-    .vencimento-grupo input, .vencimento-grupo select {
-      margin-top: 8px;
+    #scanner {
+      display: none;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -102,6 +89,8 @@
 
   <label for="produto">Produto</label>
   <input type="text" id="produto" placeholder="Ex: Leite Integral 1L" />
+  <button onclick="abrirScanner()">📷 Escanear Código de Barras</button>
+  <div id="scanner"></div>
 
   <label for="loja">Loja</label>
   <input type="text" id="loja" placeholder="Ex: Loja Centro" />
@@ -169,6 +158,50 @@
       if (!texto) return alert("Gere uma mensagem primeiro.");
       navigator.clipboard.writeText(texto).then(() => {
         alert("Mensagem copiada! Cole onde preferir.");
+      });
+    }
+
+    let scannerAtivo = false;
+    let html5QrCode;
+
+    function abrirScanner() {
+      const scanner = document.getElementById("scanner");
+
+      if (scannerAtivo) {
+        html5QrCode.stop().then(() => {
+          scanner.style.display = "none";
+          scannerAtivo = false;
+        });
+        return;
+      }
+
+      scanner.style.display = "block";
+      html5QrCode = new Html5Qrcode("scanner");
+
+      Html5Qrcode.getCameras().then(cameras => {
+        if (cameras && cameras.length) {
+          html5QrCode.start(
+            cameras[0].id,
+            {
+              fps: 10,
+              qrbox: 250
+            },
+            codigo => {
+              document.getElementById("produto").value = codigo;
+              html5QrCode.stop().then(() => {
+                scanner.style.display = "none";
+                scannerAtivo = false;
+              });
+            },
+            erro => {
+              // Ignorar erros momentâneos
+            }
+          );
+          scannerAtivo = true;
+        }
+      }).catch(err => {
+        alert("Não foi possível acessar a câmera.");
+        console.error(err);
       });
     }
 
