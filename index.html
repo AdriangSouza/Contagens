@@ -122,7 +122,11 @@
 
   <div class="mensagem" id="mensagem"></div>
 
+  <button onclick="copiarMensagem()">Copiar mensagem</button>
+
   <script>
+    let imagemBase64 = "";
+
     function adicionarVencimento() {
       const container = document.getElementById('vencimentos');
       const grupo = document.createElement('div');
@@ -148,15 +152,18 @@
     function preverImagem() {
       const file = document.getElementById('foto').files[0];
       const preview = document.getElementById('preview');
+
       if (file) {
         const reader = new FileReader();
         reader.onload = function (e) {
-          preview.src = e.target.result;
+          imagemBase64 = e.target.result;
+          preview.src = imagemBase64;
           preview.style.display = 'block';
         };
         reader.readAsDataURL(file);
       } else {
         preview.style.display = 'none';
+        imagemBase64 = "";
       }
     }
 
@@ -165,7 +172,6 @@
       const loja = document.getElementById('loja').value;
       const obs = document.getElementById('obs').value;
       const grupos = document.querySelectorAll('.vencimento-grupo');
-      const temFoto = document.getElementById('foto').files.length > 0;
 
       if (!produto || !loja || grupos.length === 0) {
         alert('Preencha produto, loja e ao menos uma data de vencimento com quantidade.');
@@ -187,12 +193,23 @@
       });
 
       if (obs) mensagem += `\n📝 Obs: ${obs}`;
-      if (temFoto) mensagem += `\n📷 Foto anexada`;
+      if (imagemBase64) mensagem += `\n📷 Foto em anexo (base64):\n${imagemBase64}`;
 
       document.getElementById('mensagem').textContent = mensagem;
     }
 
-    // Inicializa com um grupo
+    function copiarMensagem() {
+      const texto = document.getElementById('mensagem').textContent;
+      if (!texto) {
+        alert('Gere uma mensagem primeiro.');
+        return;
+      }
+      navigator.clipboard.writeText(texto).then(() => {
+        alert('Mensagem copiada! Agora é só colar onde quiser.');
+      });
+    }
+
+    // Adiciona um grupo inicial
     adicionarVencimento();
   </script>
 </body>
