@@ -5,135 +5,154 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Contagem de Produtos</title>
   <style>
+    * { box-sizing: border-box; }
+
     body {
       font-family: 'Segoe UI', sans-serif;
-      background-color: #f8f9fa;
+      background-color: #f2f5f7;
       padding: 20px;
-      max-width: 600px;
+      max-width: 700px;
       margin: auto;
       color: #333;
     }
 
-    h2 {
+    h1 {
       text-align: center;
-      color: #2c3e50;
-      margin-bottom: 25px;
+      color: #1d3557;
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
     }
 
     label {
+      font-weight: 600;
       display: block;
-      margin-top: 15px;
-      font-weight: bold;
+      margin-bottom: 6px;
       color: #2c3e50;
     }
 
-    input, textarea, button, select {
+    input, select, textarea {
       width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      border-radius: 6px;
-      border: 1px solid #ced4da;
-      box-sizing: border-box;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
       font-size: 15px;
     }
 
-    button {
-      background-color: #007bff;
-      color: white;
-      margin-top: 20px;
-      cursor: pointer;
-      border: none;
-      transition: background-color 0.3s;
+    textarea { resize: vertical; }
+
+    .vencimento-card {
+      background: #ffffff;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      margin-bottom: 15px;
     }
 
-    button:hover {
+    .vencimento-card label {
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+    .add-button {
+      background-color: #2ecc71;
+      color: white;
+      border: none;
+      padding: 12px 16px;
+      font-size: 15px;
+      font-weight: bold;
+      border-radius: 50px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .add-button i {
+      margin-right: 6px;
+    }
+
+    .btn-primary {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 12px;
+      font-size: 15px;
+      font-weight: bold;
+      border-radius: 8px;
+      width: 100%;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+
+    .btn-primary:hover {
       background-color: #0056b3;
     }
 
     .mensagem {
-      background: #fff;
-      margin-top: 20px;
+      background: #ffffff;
+      margin-top: 25px;
       padding: 15px;
-      border-radius: 6px;
+      border-radius: 10px;
       border: 1px solid #ccc;
       white-space: pre-wrap;
     }
 
-    .vencimento-grupo {
-      background-color: #ffffff;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #dee2e6;
-      margin-top: 15px;
-    }
-
-    .campo-label {
-      font-size: 14px;
-      margin-bottom: 3px;
-      font-weight: 600;
-    }
-
-    .add-button {
-      background-color: #28a745;
-      color: white;
-      padding: 10px 15px;
-      border-radius: 6px;
-      border: none;
-      font-size: 16px;
-      margin-top: 20px;
-      display: block;
-      width: fit-content;
-    }
-
-    .add-button:hover {
-      background-color: #218838;
+    .btn-copy {
+      background-color: #6c757d;
+      margin-top: 10px;
     }
 
     @media (max-width: 600px) {
-      input, textarea, button, select {
+      .add-button, .btn-primary {
         font-size: 14px;
       }
     }
   </style>
 </head>
 <body>
-  <h2>Contagem de Produtos</h2>
+  <h1>📋 Contagem de Produtos</h1>
 
-  <label for="produto">🧃 Produto</label>
-  <input type="text" id="produto" placeholder="Ex: Iogurte Natural 170g" />
+  <div class="form-group">
+    <label for="produto">Produto</label>
+    <input type="text" id="produto" placeholder="Ex: Iogurte Natural 170g">
+  </div>
 
-  <label for="loja">🏬 Loja</label>
-  <input type="text" id="loja" placeholder="Ex: Loja São José" />
+  <div class="form-group">
+    <label for="loja">Loja</label>
+    <input type="text" id="loja" placeholder="Ex: Loja Centro">
+  </div>
 
   <div id="vencimentos"></div>
-  <button class="add-button" onclick="adicionarVencimento()">+ Adicionar outra contagem</button>
+  <button class="add-button" onclick="adicionarVencimento()">
+    <i>➕</i> Adicionar outra contagem
+  </button>
 
-  <label for="obs">📝 Observações (opcional)</label>
-  <textarea id="obs" rows="3" placeholder="Ex: Produto armazenado na geladeira da frente"></textarea>
+  <div class="form-group">
+    <label for="obs">Observações (opcional)</label>
+    <textarea id="obs" rows="3" placeholder="Ex: Produto armazenado na geladeira da frente"></textarea>
+  </div>
 
-  <button onclick="gerarMensagem()">📄 Gerar mensagem</button>
+  <button class="btn-primary" onclick="gerarMensagem()">📄 Gerar Mensagem</button>
 
   <div class="mensagem" id="mensagem"></div>
-  <button onclick="copiarMensagem()">📋 Copiar mensagem</button>
+  <button class="btn-primary btn-copy" onclick="copiarMensagem()">📋 Copiar Mensagem</button>
 
   <script>
-    function formatarData(dateString) {
-      const [yyyy, mm, dd] = dateString.split("-");
-      return `${dd}-${mm}-${yyyy}`;
-    }
-
     function adicionarVencimento() {
       const container = document.getElementById('vencimentos');
       const grupo = document.createElement('div');
-      grupo.className = 'vencimento-grupo';
+      grupo.className = 'vencimento-card';
       grupo.innerHTML = `
-        <label class="campo-label">Quantidade</label>
+        <label>Quantidade</label>
         <input type="number" placeholder="Ex: 10" />
 
-        <label class="campo-label">Data de vencimento</label>
-        <input type="date" />
+        <label>Data de vencimento (dd-mm-aaaa)</label>
+        <input type="text" placeholder="dd-mm-aaaa" pattern="\\d{2}-\\d{2}-\\d{4}" />
 
-        <label class="campo-label">Localização</label>
+        <label>Localização</label>
         <select>
           <option value="Área de vendas">Área de vendas</option>
           <option value="Estoque">Estoque</option>
@@ -146,24 +165,24 @@
       const produto = document.getElementById('produto').value;
       const loja = document.getElementById('loja').value;
       const obs = document.getElementById('obs').value;
-      const grupos = document.querySelectorAll('.vencimento-grupo');
+      const grupos = document.querySelectorAll('.vencimento-card');
 
       if (!produto || !loja || grupos.length === 0) {
-        alert('Preencha produto, loja e ao menos uma contagem.');
+        alert('Preencha produto, loja e pelo menos uma contagem.');
         return;
       }
 
-      let mensagem = `📦 Produto: ${produto}\n\n`;
-      mensagem += `🏬 Loja: ${loja}\n\n`;
-      mensagem += `📆 Contagem por vencimento:\n`;
+      let mensagem = `📦 Produto: ${produto}\n`;
+      mensagem += `🏬 Loja: ${loja}\n`;
+      mensagem += `📆 Contagens:\n`;
 
-      grupos.forEach((grupo) => {
+      grupos.forEach(grupo => {
         const inputs = grupo.querySelectorAll('input, select');
         const qtd = inputs[0].value;
         const vencimento = inputs[1].value;
         const local = inputs[2].value;
         if (qtd && vencimento && local) {
-          mensagem += `• ${qtd} unidades (${local}) - ${formatarData(vencimento)}\n`;
+          mensagem += `• ${qtd} unidades (${local}) - ${vencimento}\n`;
         }
       });
 
@@ -174,13 +193,13 @@
 
     function copiarMensagem() {
       const texto = document.getElementById('mensagem').textContent;
-      if (!texto) return alert('Gere uma mensagem primeiro.');
+      if (!texto) return alert('Gere a mensagem primeiro.');
       navigator.clipboard.writeText(texto).then(() => {
-        alert('Mensagem copiada com sucesso!');
+        alert('✅ Mensagem copiada com sucesso!');
       });
     }
 
-    adicionarVencimento();
+    adicionarVencimento(); // inicial
   </script>
 </body>
 </html>
