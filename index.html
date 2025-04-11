@@ -112,9 +112,9 @@
       const grupo = document.createElement('div');
       grupo.className = 'vencimento-grupo';
       grupo.innerHTML = `
-        <input type="number" placeholder="Quantidade">
-        <input type="text" placeholder="Data de vencimento (dd/mm/aaaa)" oninput="mascaraData(this)" maxlength="10">
-        <select>
+        <input type="number" class="quantidade" placeholder="Quantidade">
+        <input type="text" class="vencimento" placeholder="Data de vencimento (dd/mm/aaaa)" oninput="mascaraData(this)" maxlength="10">
+        <select class="local">
           <option value="Área de vendas">Área de vendas</option>
           <option value="Estoque">Estoque</option>
         </select>
@@ -138,10 +138,9 @@
       mensagem += `📆 Contagens:\n`;
 
       grupos.forEach((grupo) => {
-        const inputs = grupo.querySelectorAll('input, select');
-        const qtd = inputs[0].value.trim();
-        const venc = inputs[1].value.trim();
-        const local = inputs[2].value;
+        const qtd = grupo.querySelector('.quantidade').value.trim();
+        const venc = grupo.querySelector('.vencimento').value.trim();
+        const local = grupo.querySelector('.local').value;
         if (qtd && venc) {
           mensagem += `• ${qtd} unidades (${local}) - ${venc}\n`;
         }
@@ -190,7 +189,7 @@
           html5QrCode.stop();
           qrDiv.style.display = "none";
 
-          // Usa API para buscar nome
+          // Usa API gratuita para buscar nome
           const produtoInput = document.getElementById("produto");
           try {
             const res = await fetch(`https://api.barcodelookup.com/v3/products?barcode=${decodedText}&formatted=y&key=8qlzz9o86d4g9p6hxszq3f`);
