@@ -79,25 +79,13 @@
 
     #scanner-container {
       display: none;
-      margin: 10px 0;
-      position: relative;
+      margin: 20px 0;
     }
 
     video {
       width: 100%;
       border-radius: 10px;
-    }
-
-    .fechar-scanner {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: red;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      padding: 5px 10px;
-      cursor: pointer;
+      border: 2px solid #333;
     }
   </style>
 </head>
@@ -108,13 +96,9 @@
   <label>Produto</label>
   <input type="text" id="produto" placeholder="Ex: Leite Integral 1L">
 
-  <label>Código de Barras</label>
-  <input type="text" id="codigo-barra" readonly>
-
   <button class="scanner-btn" onclick="iniciarScanner()">📷 Escanear Código de Barras</button>
   <div id="scanner-container">
     <video id="scanner-preview"></video>
-    <button class="fechar-scanner" onclick="fecharScanner()">Fechar</button>
   </div>
 
   <label>Loja</label>
@@ -131,7 +115,6 @@
   <button onclick="copiarMensagem()">Copiar Mensagem</button>
 
   <script>
-    // Adiciona novo grupo de vencimento
     function adicionarVencimento() {
       const container = document.getElementById('vencimentos');
       const grupo = document.createElement('div');
@@ -153,7 +136,6 @@
       container.appendChild(grupo);
     }
 
-    // Máscara para o campo de data
     function mascaraData(campo) {
       let v = campo.value.replace(/\D/g, "");
       if (v.length > 2 && v.length <= 4) {
@@ -165,7 +147,6 @@
       }
     }
 
-    // Gera a mensagem final
     function gerarMensagem() {
       const produto = document.getElementById('produto').value.trim();
       const loja = document.getElementById('loja').value.trim();
@@ -201,7 +182,6 @@
       document.getElementById('mensagem').textContent = mensagem;
     }
 
-    // Copia a mensagem para a área de transferência
     function copiarMensagem() {
       const texto = document.getElementById('mensagem').textContent;
       if (!texto) return alert('Gere uma mensagem primeiro.');
@@ -210,7 +190,6 @@
       });
     }
 
-    // Inicia o scanner
     function iniciarScanner() {
       const scannerContainer = document.getElementById('scanner-container');
       const video = document.getElementById('scanner-preview');
@@ -218,6 +197,7 @@
 
       Quagga.init({
         inputStream: {
+          name: "Live",
           type: "LiveStream",
           target: video,
           constraints: {
@@ -229,7 +209,7 @@
         }
       }, function (err) {
         if (err) {
-          console.error(err);
+          console.error("Erro ao iniciar scanner:", err);
           alert("Erro ao iniciar scanner");
           return;
         }
@@ -240,7 +220,6 @@
         const code = result.codeResult.code;
         Quagga.stop();
         scannerContainer.style.display = 'none';
-        document.getElementById('codigo-barra').value = code;
         document.getElementById('produto').value = code;
 
         try {
@@ -258,21 +237,7 @@
       });
     }
 
-    // Fecha o scanner
-    function fecharScanner() {
-      Quagga.stop();
-      document.getElementById('scanner-container').style.display = 'none';
-    }
-
-    // Fecha scanner ao clicar fora
-    document.addEventListener('click', function (e) {
-      const container = document.getElementById('scanner-container');
-      if (container.style.display === 'block' && !container.contains(e.target)) {
-        fecharScanner();
-      }
-    });
-
-    // Inicializa com um campo
+    // Inicia com um campo de vencimento já visível
     adicionarVencimento();
   </script>
 </body>
