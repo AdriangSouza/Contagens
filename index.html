@@ -80,12 +80,38 @@
     #scanner-container {
       display: none;
       margin: 20px 0;
+      position: relative;
     }
 
     video {
       width: 100%;
       border-radius: 10px;
       border: 2px solid #333;
+    }
+
+    .scanner-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .scanner-line {
+      width: 80%;
+      height: 2px;
+      background-color: red;
+      position: relative;
+      animation: scan 2s infinite linear;
+    }
+
+    @keyframes scan {
+      0% { top: 0; }
+      100% { top: 100%; }
     }
   </style>
 </head>
@@ -99,6 +125,9 @@
   <button class="scanner-btn" onclick="iniciarScanner()">📷 Escanear Código de Barras</button>
   <div id="scanner-container">
     <video id="scanner-preview"></video>
+    <div class="scanner-overlay">
+      <div class="scanner-line"></div>
+    </div>
   </div>
 
   <label>Loja</label>
@@ -116,6 +145,7 @@
 
   <script>
     let scannerAtivo = false;
+    let scannerIniciado = false;
 
     function adicionarVencimento() {
       const container = document.getElementById('vencimentos');
@@ -196,9 +226,15 @@
       const scannerContainer = document.getElementById('scanner-container');
       const video = document.getElementById('scanner-preview');
 
-      if (scannerAtivo) return;
+      if (scannerAtivo) {
+        Quagga.stop();
+        scannerContainer.style.display = 'none';
+        scannerAtivo = false;
+        return;
+      }
 
       scannerContainer.style.display = 'block';
+      scannerAtivo = true;
 
       Quagga.init({
         inputStream: {
@@ -206,54 +242,79 @@
           type: "LiveStream",
           target: video,
           constraints: {
-            facingMode: { ideal: "environment" },
-            aspectRatio: { ideal: 1.7778 }
+            facingMode: "environment",
+            width: { min: 640 },
+            height: { min: 480 },
+            aspectRatio: { ideal: 1.333 }
           }
         },
         decoder: {
-          readers: ["ean_reader"]
+          readers: [
+            "ean_reader",
+            "ean_8_reader",
+            "code_128_reader",
+            "code_39_reader",
+            "code_39_vin_reader",
+            "codabar_reader",
+            "upc_reader",
+            "upc_e_reader"
+          ],
+          debug: {
+            drawBoundingBox: true,
+            showFrequency: true,
+            drawScanline: true,
+            showPattern: true
+          }
         },
-        locate: true
-      }, function (err) {
+        locate: true,
+        frequency: 10
+      }, function(err) {
         if (err) {
           console.error("Erro ao iniciar scanner:", err);
           alert("Erro ao acessar a câmera. Verifique as permissões.");
           scannerContainer.style.display = 'none';
+          scannerAtivo = false;
           return;
         }
-
         Quagga.start();
-        scannerAtivo = true;
+        scannerIniciado = true;
       });
 
-      Quagga.onDetected(async function (result) {
+      Quagga.onDetected(function(result) {
         if (!result || !result.codeResult || !result.codeResult.code) return;
-
+        
         const code = result.codeResult.code;
+        console.log("Código detectado:", code);
+        
         Quagga.stop();
-        scannerAtivo = false;
         scannerContainer.style.display = 'none';
-
+        scannerAtivo = false;
+        
         document.getElementById('produto').value = code;
-
-        try {
-          const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${code}.json`);
-          const data = await res.json();
-          if (data.status === 1 && data.product.product_name) {
-            document.getElementById('produto').value = data.product.product_name;
-          } else {
-            alert("Código escaneado, mas produto não encontrado.");
-          }
-        } catch (e) {
-          console.error(e);
-          alert("Erro ao buscar o nome do produto.");
-        }
+        
+        // Tentar buscar informações do produto
+        buscarProduto(code);
       });
+    }
+
+    async function buscarProduto(codigo) {
+      try {
+        const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${codigo}.json`);
+        const data = await response.json();
+        
+        if (data.status === 1 && data.product.product_name) {
+          document.getElementById('produto').value = data.product.product_name;
+        } else {
+          console.log("Produto não encontrado na base de dados");
+        }
+      } catch (error) {
+        console.error("Erro ao buscar produto:", error);
+      }
     }
 
     // Para desligar scanner ao sair da página
     window.addEventListener('beforeunload', () => {
-      if (scannerAtivo) {
+      if (scannerAtivo && scannerIniciado) {
         Quagga.stop();
       }
     });
