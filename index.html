@@ -115,6 +115,8 @@
   <button onclick="copiarMensagem()">Copiar Mensagem</button>
 
   <script>
+    let scannerAtivo = false;
+
     function adicionarVencimento() {
       const container = document.getElementById('vencimentos');
       const grupo = document.createElement('div');
@@ -193,6 +195,9 @@
     function iniciarScanner() {
       const scannerContainer = document.getElementById('scanner-container');
       const video = document.getElementById('scanner-preview');
+
+      if (scannerAtivo) return;
+
       scannerContainer.style.display = 'block';
 
       Quagga.init({
@@ -201,25 +206,34 @@
           type: "LiveStream",
           target: video,
           constraints: {
-            facingMode: "environment"
+            facingMode: { ideal: "environment" },
+            aspectRatio: { ideal: 1.7778 }
           }
         },
         decoder: {
           readers: ["ean_reader"]
-        }
+        },
+        locate: true
       }, function (err) {
         if (err) {
           console.error("Erro ao iniciar scanner:", err);
-          alert("Erro ao iniciar scanner");
+          alert("Erro ao acessar a câmera. Verifique as permissões.");
+          scannerContainer.style.display = 'none';
           return;
         }
+
         Quagga.start();
+        scannerAtivo = true;
       });
 
       Quagga.onDetected(async function (result) {
+        if (!result || !result.codeResult || !result.codeResult.code) return;
+
         const code = result.codeResult.code;
         Quagga.stop();
+        scannerAtivo = false;
         scannerContainer.style.display = 'none';
+
         document.getElementById('produto').value = code;
 
         try {
@@ -236,6 +250,13 @@
         }
       });
     }
+
+    // Para desligar scanner ao sair da página
+    window.addEventListener('beforeunload', () => {
+      if (scannerAtivo) {
+        Quagga.stop();
+      }
+    });
 
     // Inicia com um campo de vencimento já visível
     adicionarVencimento();
