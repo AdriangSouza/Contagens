@@ -134,9 +134,14 @@
     }
 
     function mascaraData(campo) {
-      let v = campo.value.replace(/\D/g, '');
-      if (v.length >= 3 && v.length <= 4) campo.value = v.replace(/^(\d{2})(\d{1,2})/, '$1/$2');
-      else if (v.length >= 5) campo.value = v.replace(/^(\d{2})(\d{2})(\d{1,4}).*/, '$1/$2/$3');
+      let v = campo.value.replace(/\D/g, "");
+      if (v.length > 2 && v.length <= 4) {
+        campo.value = v.replace(/^(\d{2})(\d{1,2})/, "$1/$2");
+      } else if (v.length > 4) {
+        campo.value = v.replace(/^(\d{2})(\d{2})(\d{1,4}).*/, "$1/$2/$3");
+      } else {
+        campo.value = v;
+      }
     }
 
     function gerarMensagem() {
